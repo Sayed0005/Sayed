@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gioco delle domande di Java</title>
+    <link rel="icon" href="https://www.oracle.com/favicon.ico" type="image/x-icon">
+    <style>
+        /* Stili del gioco delle domande */
+        .option-button {
+            font-weight: bold;
+            color: black;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px 20px;
+            margin: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .option-button:hover {
+            background-color: #007bff;
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            color: #000;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            display: none;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+
+        #pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #pagination button {
+            background-color: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #pagination button:hover {
+            background-color: #ccc;
+        }
+
+        #question-number {
+            color: #666;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Pagella */
+        #final-score {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        #final-score span {
+            font-weight: bold;
+        }
+
+        #errors {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        #emoji {
+            font-size: 50px;
+            margin-top: 20px;
+        }
+
+        /* Chi sono e Idea del gioco */
+        #info-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            display: block;
+        }
+
+        /* Dettagli */
+        #details-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        #details-container input {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #start-quiz-button {
+            background-color: #28a745;
+        }
+
+        #start-quiz-button:hover {
+            background-color: #218838;
+        }
+
+        .selected {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        #timer {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #666;
+        }
+
+        #timer-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Sfondo animato */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+            z-index: -1;
+            animation: gradient 5s ease infinite;
+            background-size: 400% 400%;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="info-container" class="container">
+        <h1>Benvenuto al Gioco delle Domande di Java!</h1>
+        <p>Questo gioco ti permetterà di testare le tue conoscenze su Java rispondendo a una serie di domande. Pronto a metterti alla prova?</p>
+        <button onclick="showDetails()">Scopri di più</button>
+    </div>
+
+    <div id="details-container" class="container">
+        <h1>Inserisci i tuoi dettagli</h1>
+        <input type="text" id="name-input" placeholder="Nome">
+        <br>
+        <input type="text" id="surname-input" placeholder="Cognome">
+        <br>
+        <input type="number" id="age-input" placeholder="Età">
+        <br>
+        <button onclick="startQuiz()" id="start-quiz-button">Inizia il quiz</button>
+    </div>
+
+    <div id="question-container" class="container">
+        <h1>Gioco delle domande di Java</h1>
+        <p id="question-text"></p>
+        <div id="options"></div>
+        <div id="pagination">
+            <button onclick="previousQuestion()">&#9664;</button>
+            <span id="question-number"></span>
+            <button id="next-button" onclick="nextQuestion()">&#9654;</button>
+        </div>
+        <div id="result"></div>
+        <div id="timer-container">
+            <p id="timer">Tempo rimasto: 20m 0s</p>
+        </div>
+    </div>
+
+    <div id="final-score" class="container"></div>
+    <div id="errors" class="container"></div>
+    <div id="emoji" class="container"></div>
+
+    <script>
+        var questions = [
+            "Qual è il concetto fondamentale di programmazione orientata agli oggetti in Java?",
+            "Qual è il metodo principale che viene eseguito automaticamente quando si avvia un'applicazione Java?",
+            "Cosa rappresenta la parola chiave 'static' in Java?",
+            "Qual è il risultato dell'espressione '5 + 3 * 2' in Java?",
+            "Cosa rappresenta la parola chiave 'void' in Java?",
+            "Cos'è un ciclo 'for' in Java?",
+            "Cos'è una variabile locale in Java?",
+            "Cosa è una classe in Java?",
+            "Qual è la differenza tra '==' e '.equals()' in Java?",
+            "Cosa significa 'JVM' in Java?",
+            "Cos'è una 'exception' in Java?",
+            "Cosa è il 'garbage collection' in Java?",
+            "Qual è il significato di 'serializzazione' in Java?",
+            "Cosa significa 'polimorfismo' in Java?"
+        ];
+
+        var options = [
+            ["<strong>Incapsulamento</strong>", "<strong>Ereditarietà</strong>", "<strong>Polimorfismo</strong>", "<strong>Abbreviazione</strong>"],
+            ["<strong>main()</strong>", "<strong>start()</strong>", "<strong>run()</strong>", "<strong>init()</strong>"],
+            ["<strong>Una variabile globale</strong>", "<strong>Un metodo di istanza</strong>", "<strong>Un metodo di classe</strong>", "<strong>Una variabile locale</strong>"],
+            ["<strong>16</strong>", "<strong>11</strong>", "<strong>13</strong>", "<strong>10</strong>"],
+            ["<strong>Un metodo che restituisce un valore</strong>", "<strong>Un metodo che non restituisce un valore</strong>", "<strong>Una variabile di classe</strong>", "<strong>Una variabile locale</strong>"],
+            ["<strong>Una struttura di controllo</strong>", "<strong>Una struttura condizionale</strong>", "<strong>Un tipo di variabile</strong>", "<strong>Un tipo di metodo</strong>"],
+            ["<strong>Una variabile definita all'interno di un metodo</strong>", "<strong>Una variabile definita all'interno di una classe</strong>", "<strong>Una variabile globale</strong>", "<strong>Una variabile statica</strong>"],
+            ["<strong>Un'istanza di un oggetto</strong>", "<strong>Un modello per creare oggetti</strong>", "<strong>Una funzione</strong>", "<strong>Una variabile</strong>"],
+            ["<strong>Non c'è differenza</strong>", "<strong>'==' confronta i valori, '.equals()' confronta i riferimenti</strong>", "<strong>'==' confronta i riferimenti, '.equals()' confronta i valori</strong>", "<strong>'==' confronta le stringhe, '.equals()' confronta i numeri</strong>"],
+            ["<strong>Java Virtual Machine</strong>", "<strong>Java Variable Method</strong>", "<strong>Java Visual Machine</strong>", "<strong>Java Vector Method</strong>"],
+            ["<strong>Un errore di sintassi</strong>", "<strong>Un evento che interrompe il normale flusso del programma</strong>", "<strong>Un errore di compilazione</strong>", "<strong>Un avvertimento del compilatore</strong>"],
+            ["<strong>La gestione automatica della memoria</strong>", "<strong>Il processo di compilazione</strong>", "<strong>Il processo di esecuzione del codice</strong>", "<strong>Il processo di gestione delle eccezioni</strong>"],
+            ["<strong>Il processo di conversione di un oggetto in un formato che può essere salvato o trasmesso</strong>", "<strong>Il processo di conversione di un oggetto in una stringa</strong>", "<strong>Il processo di esecuzione di un oggetto</strong>", "<strong>Il processo di creazione di un oggetto</strong>"],
+            ["<strong>La capacità di un oggetto di assumere molte forme</strong>", "<strong>La capacità di una variabile di cambiare valore</strong>", "<strong>La capacità di un metodo di cambiare comportamento</strong>", "<strong>La capacità di una classe di essere ereditata</strong>"]
+        ];
+
+        var correctAnswers = [
+            "Incapsulamento",
+            "main()",
+            "Un metodo di classe",
+            "11",
+            "Un metodo che non restituisce un valore",
+            "Una struttura di controllo",
+            "Una variabile definita all'interno di un metodo",
+            "Un modello per creare oggetti",
+            "'==' confronta i riferimenti, '.equals()' confronta i valori",
+            "Java Virtual Machine",
+            "Un evento che interrompe il normale flusso del programma",
+            "La gestione automatica della memoria",
+            "Il processo di conversione di un oggetto in un formato che può essere salvato o trasmesso",
+            "La capacità di un oggetto di assumere molte forme"
+        ];
+
+        var currentQuestion = 0;
+        var score = 0;
+        var errors = [];
+
+        function showDetails() {
+            document.getElementById("info-container").style.display = "none";
+            document.getElementById("details-container").style.display = "block";
+        }
+
+        function startQuiz() {
+            var name = document.getElementById("name-input").value;
+            var surname = document.getElementById("surname-input").value;
+            var age = document.getElementById("age-input").value;
+
+            if (name && surname && age) {
+                document.getElementById("details-container").style.display = "none";
+                document.getElementById("question-container").style.display = "block";
+                showQuestion(currentQuestion);
+                startTimer();
+            } else {
+                alert("Per favore, inserisci tutti i dettagli.");
+            }
+        }
+
+        function showQuestion(index) {
+            var questionText = questions[index];
+            var optionsHTML = "";
+
+            for (var i = 0; i < options[index].length; i++) {
+                optionsHTML += "<button class='option-button' onclick='selectOption(this)'>" + options[index][i] + "</button>";
+            }
+
+            document.getElementById("question-text").innerHTML = questionText;
+            document.getElementById("options").innerHTML = optionsHTML;
+            document.getElementById("question-number").innerHTML = "Domanda " + (index + 1) + " di " + questions.length;
+
+            if (index === questions.length - 1) {
+                document.getElementById("next-button").innerHTML = "Fine quiz";
+            } else {
+                document.getElementById("next-button").innerHTML = "&#9654;";
+            }
+        }
+
+        function selectOption(button) {
+            var selectedAnswer = button.innerHTML.replace(/<strong>|<\/strong>/g, "");
+
+            if (selectedAnswer === correctAnswers[currentQuestion]) {
+                score++;
+            } else {
+                errors.push({
+                    question: questions[currentQuestion],
+                    correctAnswer: correctAnswers[currentQuestion]
+                });
+            }
+
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            } else {
+                clearInterval(timer);
+                showFinalScore();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        }
+
+        function showFinalScore() {
+            document.getElementById("question-container").style.display = "none";
+            document.getElementById("final-score").style.display = "block";
+            document.getElementById("errors").style.display = "block";
+            document.getElementById("emoji").style.display = "block";
+            document.getElementById("final-score").innerHTML = "Hai risposto correttamente a " + score + " domande su " + questions.length + ".";
+            var errorsHTML = "";
+
+            for (var i = 0; i < errors.length; i++) {
+                errorsHTML += "<p>Domanda: " + errors[i].question + "<br>Risposta corretta: " + errors[i].correctAnswer + "</p>";
+            }
+
+            document.getElementById("errors").innerHTML = errorsHTML;
+            var emoji = score >= questions.length * 0.8 ? "&#128512;" : score >= questions.length * 0.5 ? "&#128528;" : "&#128543;";
+            document.getElementById("emoji").innerHTML = emoji;
+        }
+
+        var timer;
+        var totalSeconds = 20 * 60;
+
+        function startTimer() {
+            timer = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            var minutes = Math.floor(totalSeconds / 60);
+            var seconds = totalSeconds % 60;
+
+            document.getElementById("timer").innerHTML = "Tempo rimasto: " + minutes + "m " + (seconds < 10 ? "0" + seconds : seconds) + "s";
+            totalSeconds--;
+
+            if (totalSeconds < 0) {
+                clearInterval(timer);
+                showFinalScore();
+            }
+        }
+    </script>
+</body>
+</html>
